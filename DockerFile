@@ -1,0 +1,27 @@
+FROM node:lts-slim
+
+# 设置workdir,指向 hexo 的目录
+WORKDIR /hexon
+
+# 安装环境
+RUN \
+  mkdir /blog && \
+  apt-get update && \
+  apt-get install git -y && \
+  git clone https://github.com/gethexon/hexon /hexon && \
+  npm install -g hexo pnpm && \
+  apt-get clean
+
+# 公开服务器端口
+EXPOSE 5777 
+
+# 挂载hexo博客目录的路径
+VOLUME /blog
+
+# 构建基础服务器和配置（如果不存在），然后启动
+CMD \
+  if [ ! -d "/hexon/server/data" ]; then \
+    pnpm install; \
+    pnpm run setup; \
+  fi; \
+  pnpm start;
